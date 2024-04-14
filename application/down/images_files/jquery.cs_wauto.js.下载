@@ -1,0 +1,45 @@
+function setMinWidthAutoScrollBox(){
+	$(".is-wauto-box").each(function(){
+		var obj = $(">*",$(this)).eq(0);
+		var body = $("#contents");
+		var minW = parseInt(obj.css("min-width"));
+		//var objW = parseInt(obj.width());
+		var objW = parseInt( body.width() );
+		console.log(objW);
+		if(minW<=0) minW = objW;
+		var this_s = $(this);
+		if ( objW < minW ) {
+			
+
+			if ( !$(this).parent().hasClass("wauto-wrap") ) {
+				$(this).css("overflow-x", "auto");
+				$(this).wrap("<div class='wauto-wrap'></div>");
+				$(this).before("<div class='rsv-info'><p class='ico'>좌우로 스크롤하시면 내용이 보입니다.</p></div>");
+			}
+
+			/*
+			$(this).css({"overflow-x":"scroll"}).attr("tabindex","0");
+			if ( $(this).parent().hasClass("wauto-wrap") ) {
+				$(".rsv-info", $(this).parent()).remove();
+				$(this).unwrap();
+			}
+			$(this).wrap("<div class='wauto-wrap'></div>");
+			if($(".rsv-info",$(this).parent()).length<1 && this_s.attr("srcbox")!="1" ){
+				$(this).parent().prepend("<div class='rsv-info'><p class='ico'>좌우로 스크롤하시면 내용이 보입니다.</p></div>");
+				$(".rsv-info",$(this).parent()).css({"width":"100%","height":"100%","display":"block"});
+				$(".rsv-info button",$(this).parent()).click(function(){
+					this_s.attr("srcbox","1");
+					$(this).parents(".is-wauto-box > *").eq(0).focus();
+					$(this).parent().remove();
+				});
+			}
+			*/
+		} else {
+			if ( $(this).parent().hasClass("wauto-wrap") ) {
+				$(".rsv-info", $(this).parent() ).remove();
+				$(this).unwrap();
+			}
+			$(this).css({"overflow-x":"initial"});
+		}
+	});
+}

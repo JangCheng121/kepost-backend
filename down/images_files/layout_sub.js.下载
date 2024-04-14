@@ -1,0 +1,375 @@
+var _isLowBr_ = false,_isMobile_ = false;
+var _thisPage_cfg  = {};
+//레이아웃 셋팅(로딩완료된 후에만 1번만 처리)
+function initPageLayout(){
+	resetTabSize(); // 탭메뉴 사용시 주석제거
+	setContAutoWidth();
+	_setLayoutFooter();
+	resetImgZoom();
+}
+//레이아웃 리셋
+function resetPageLayout(){
+	mainNavi._reset();
+	resetTabSize();   // 탭메뉴 사용시 주석제거
+	resetImgZoom();
+	setContAutoWidth();
+	_resetFooterHeight();
+}
+
+
+//레이아웃 높이 리셋
+function resizePageLayoutHeight(){
+}
+////////////////////////////////////////////////////
+//윈도우 회전시 실행할 함수
+function setWindowRotation(){
+	if(typeof(thisPageRotation)=="function" && thisPageRotation!=undefined){  thisPageRotation(); }
+	else {
+		//기본 회전시 실행할 함수
+		//resetPageLayout();
+	}
+}
+//document.addEventListener('DOMContentLoaded', loaded, false);
+if('onorientationchange' in window){
+	window.addEventListener('onorientationchange', setWindowRotation, false);
+}
+////////////////////////////////////////////////////
+$(document).ready(function(){
+	console.log("1.Ready");
+
+	try{getWindowSize();	}catch(e){}
+	try{getPageSize();	}catch(e){}
+	if(_isMobile_) $alertLoading("Page Loading...");
+	try{setLowBrowser();	}catch(e){	}
+	try{setMediaObjectFunc();	}catch(e){	}
+	try{ _thisLayout_style = getPageStyle(); }catch(e){}
+	try{ resetTabSize(); }catch(e){}
+	initNavigation();
+	docLoading(function(){
+		console.log("3.docLoad");
+		initImgSizeInfo();
+		initPageLayout();
+		resetImgZoom();
+	});
+	subUtil.hideImg();
+	subUtil.tabIsFull();
+	subUtil.tabDetect();
+	sideMenu.init();
+	//subUtil.navArrSet();
+});
+$(window).load(function(){
+	console.log("2.Load");
+});
+$(window).resize(function(e){
+	//var resizeTimeGap = (_isLowBr_)?  250 : 10;
+	var resizeTimeGap = 10;
+	if(_isLowBr_) resizeTimeGap=100;
+	clearTimeout(window.resizeEvt);
+	window.resizeEvt = setTimeout(function()
+	{
+		//console.log("Resize" );
+		getWindowSize();getPageSize();
+		try{
+		if(old_wsize.win== undefined ||  wsize.win.w!=old_wsize.win.w){
+			resetPageLayout();
+		}else{
+			resizePageLayoutHeight();
+		}
+		}catch(e){
+			resetPageLayout();
+		}
+	}, resizeTimeGap);
+});
+$(window).scroll(function(){
+	clearTimeout(window.scrollEvt);
+	window.scrollEvt = setTimeout(function() {
+		////srolling
+	}, 250);
+});
+try {
+	$(window).scrollStopped(function(){
+		//end sroll
+	});
+} catch(e){}
+
+
+
+
+// ** sns 공유
+function snsToggle(){
+	if($(".cont-ctrl-btns .btn-share").hasClass("is-open")){
+		$(".sns-list").slideUp(300);
+		$(".cont-ctrl-btns .btn-share").removeClass("is-open");
+	} else {
+		$(".sns-list").slideDown(300);
+		$(".cont-ctrl-btns .btn-share").addClass("is-open");
+		
+		var pageurl = location.href;
+		if(pageurl =='https://www.hanjin.co.kr/kor/CMS/DeliveryMgr/WaybillResult.do'){
+			$('#kakaolink').css("display","none");
+		}
+	}
+}
+
+// ** URL 복사
+function urlClipCopy() {
+	var f = document.clipboard.url;
+	f.value = document.location.href;
+	f.select() ;
+	//alert("클립보드로 URL이 복사되었습니다.");
+}
+
+urlClipCopy();
+
+var clipboard = new ClipboardJS('.btn-link');
+clipboard.on('success', function(e) {
+	alert("현재 URL이 복사되었습니다.")
+});
+clipboard.on('error', function(e) {
+	alert("Ctrl + C 를 누르면 복사가 완료됩니다.")
+});
+
+// ** 서브페이지 공통
+var subUtil = {
+	hideImg : function() {	// ** 이미지 없을때
+		$("img").each(function(){
+			var $this = $(this);
+			var wImgObj = $this.attr("src");
+			if ( wImgObj == null || wImgObj == '' ){
+				$this.css("display","none");
+			}
+		});
+	},
+	tabIsFull : function() {
+		$cTabCore = $("body .c-tab01");
+		$cTabStdL = 5;
+		if ( $cTabCore.length > 0 ) {
+			$cTabLInum = $("> ul > li", $cTabCore ).length;
+			if ( $cTabLInum >= $cTabStdL ) {
+				$cTabCore.addClass( "has"+ $cTabLInum );
+			}
+		}
+		$("> ul > li", $cTabCore ).each(function() {
+			//$("span", $(this) ).wrap("<span></span>");
+		});
+	},
+	tabDetect : function() {
+		// ** 게시판페이지이고 게시판탭이 존재할때 #board-wrap 상단패딩 제거.
+		// https://www.hanjin.co.kr/kor/CMS/Board/Board.do?mCode=MN043
+		$boardWrap = $("#board-wrap");
+		$boardTab01 = $(".c-tab01", $boardWrap );
+		if ( $boardWrap.length >= 1 && $boardTab01.length >= 1 ) {
+			$("body").addClass("hasBbsTab");
+		}
+
+		// ** 마이페이지 중 c-tab02 가 있을경우 c-tab02의 상단 마진 추가
+		// https://www.hanjin.co.kr/kor/CMS/MemberMgr/Mypage/agreeModify.do?mCode=MN041
+		$memberWrap = $("#member-box");
+		$memberTab02 = $(".c-tab02");
+		if ( $memberWrap.length >= 1 && $memberTab02.length >= 1 ) {
+			$("body").addClass("hasMemberTab02");
+		}
+	}
+}
+
+//** 사이드메뉴
+var sideMenu = {
+	init : function() {
+		$sideM = $(".cont-side");
+		$sideM_caster = $(".cont-sideCaster", $sideM );
+		$sideMList = $(".cont-side-menu", $sideM);
+		$sideIsClick = false;
+		$sideNum = "";
+
+		$sideMM = $(".cont-side-M");
+		$sideMM_caster = $(".cont-sideCaster", $sideMM );
+		$sideMM_closer_Mflag = $(".cont-side-menu-closer", $sideMM );
+
+		$sideMTarget = $("#contents .cont-wr > h3.c-tit");
+		$pageTitNode = $("#contents .cont-top");
+		$mFlagState = "";
+
+		this.sideMenuSet();
+		this.sideMenuScroll();
+		this.sideOverScroll();
+		this.sideQuick();
+		this.mmPkg();
+	},
+	mmPkg : function() {
+		$(document).on("click", ".cont-side-M .cont-sideCaster", function() {
+			if ( $(this).hasClass("over") ) {
+				$(this).removeClass("over");
+				$(this).next().slideUp()
+			} else {
+				$(this).addClass("over #1");
+				$(this).next().slideDown()
+			}
+		});
+		$(document).on("click", ".cont-side-M li button.anchor", function() {
+			$selTxt = $("span", $(this) ).text();
+			$("span", $(this).closest("div").prev() ).text( $selTxt );
+			if ( $(".cont-side-M .cont-sideCaster").css("display") == "block" ) {
+				$(this).closest("div").prev().trigger("click");
+			} else {
+
+			}
+		});
+		$(document).on("click", ".cont-side-M .cont-side-menu-closer", function() {
+			$(this).parent().prev().trigger("click");
+		});
+
+		$(window).on("load", function() {
+			contWrReCtrl();
+		});
+		$(window).on("resize", function() {
+			contWrReCtrl();
+		});
+		function contWrReCtrl() {
+			$mFlag1 = $(".cont-side-menu-closer").css("display");
+			$mFlag2 = $(".cont-side-M .cont-side-menu").css("position");
+			$activeContLen = $("#cont .cont-wr.over");
+			if ( $activeContLen.length < 1 )	$activeCont = $("#cont .cont-wr#anchor1");
+			else								$activeCont = $("#cont .cont-wr.over");
+			if ( $mFlag1 == "none" ) {			// ** pc
+				$mFlagState = "P";
+				$activeCont.removeClass("mOver");
+
+			} else if ( $mFlag1 == "block" ) {	// ** mobile
+				$mFlagState = "M";
+				$activeCont.addClass("mOver");
+
+			}
+			if ( $mFlag2 == "static" ) {
+				$(".cont-side-M .cont-side-menu").show();
+			} else if ( $mFlag2 == "absolute" ) {
+				$(".cont-side-M .cont-side-menu").hide();
+			}
+		}
+	},
+	sideMenuSet : function() {
+		if ( $sideMTarget.length >= 1 ) {
+			$("body").addClass("hasntPageTitle hasSectionAnchor");
+			var sMenuTxt = "<button type='button' class='cont-sideCaster'><span></span></button>";
+			sMenuTxt += "<div class='cont-side-menu'>";
+			sMenuTxt += "<ul class=''>";
+			$sideMTarget.each(function(idx) {
+				var sideIdx = idx + 1;
+				if(idx == 0) {
+					sMenuTxt += "<li class='first over side-list" + sideIdx + "'>";
+				} else {
+					sMenuTxt += "<li class= side-list"+ sideIdx + ">";
+				}
+				sMenuTxt += "<button type='button' class='anchor'><span class='txt'>" + $(this).text() + "</span></button></li>";
+			});
+			sMenuTxt += "</ul>";
+			sMenuTxt += "<button type='button' class='cont-side-menu-closer'><em class='blind'>닫기</em></button>";
+			sMenuTxt += "</div>";
+			$sideM.prepend(sMenuTxt);
+			$sideMM.prepend(sMenuTxt);
+
+			$("#cont .cont-wr").each(function(a) {
+				var contA = a + 1;
+				$(this).attr('id', 'anchor'+ contA);
+			});
+		} else {
+			$pageTitNode.show();
+		}
+		$(window).on("load", function() {
+			$openingSelectedStr = $(".cont-side .cont-side-menu li.over button span").text();
+			$(".cont-sideCaster span" ).text( $openingSelectedStr );
+		});
+	},
+	sideMenuScroll : function() {
+		var prevSTop = $(window).scrollTop(),
+			nowSTop = $(window).scrollTop(),
+			prevDir = "down",
+			nowDir = "down",
+			sideMTop = parseInt($sideM.css("top"), 10),
+			ftMap= $("#footer-wrap").offset().top - $("#footer-wrap").outerHeight() - $("#header").outerHeight() - sideMTop;
+
+		$(window).on("scroll touchmove", function() {
+			var scrT = nowSTop = $(this).scrollTop();
+			if(nowSTop > prevSTop) {
+				nowDir = "down";
+			} else if (nowSTop < prevSTop) {
+				nowDir ="up";
+			}
+			prevDir = nowDir;
+			prevSTop = nowSTop;
+			var sideT = $sideM.offset().top;
+			var sideB = sideT - $(window).height()+ $sideM.outerHeight();
+			//console.log("sideT" + sideT + "sideB" + sideB + "ft" + ftMap+ "//" + scrT);
+			if(ftMap < scrT) {
+				var fixGap = ftMap - scrT + sideMTop;
+				$sideM.css({"top" : fixGap +"px"});
+			}
+		});
+	},
+	sideOverScroll : function() {
+		$scrollFnc = null;
+		$(window).on("scroll", function() {
+			clearTimeout( $scrollFnc );
+			$scrollFnc = setTimeout(
+				function() {
+					var scrT = $(this).scrollTop();
+					var contIdx  = 0;
+					$(".cont-wr").each(function(idx) {
+						var thisLiT = $(this).offset().top - $("#header-wrap").outerHeight();
+						var thisLiH = $(this).offset().top + $(this).outerHeight()- $("#header-wrap").outerHeight();
+						// ** console.log( thisLiT + " / " + scrT );
+						// ** console.log( idx + "idx" + thisLiT + "t // h"  + thisLiH + "// scrT " + scrT);
+						// ** if ( thisLiT <= scrT && scrT < thisLiH ) {
+						if ( Math.floor( thisLiT ) <= scrT && scrT < Math.floor( thisLiH ) ) {
+							contIdx = idx;
+						}
+					});
+					var $sideTxtLi = $("li", $sideM).eq(contIdx);
+					$("li", $sideM ).not( $sideTxtLi ).removeClass("over");
+					$sideTxtLi.addClass("over #2");
+					$("span", $sideTxtLi.closest("ul").prev() ).text( $("span", $sideTxtLi ).text() );
+
+					var $sideTxtLiM = $("li", $sideMM).eq(contIdx);
+					$("li", $sideMM ).not( $sideTxtLiM ).removeClass("over");
+					$sideTxtLiM.addClass("over #3");
+					$("span", $sideTxtLiM.closest("ul").prev() ).text( $("span", $sideTxtLiM ).text() );
+				}
+			, 200 );
+		});
+	},
+	sideQuick : function() {
+		var actList = false;
+		var contIdx = 0;
+		$(document).on("click", ".cont-side-menu > ul > li > button.anchor", function() {
+			if ( !actList ) {
+				actList = true;
+				var $thisLi = $(this).parent();
+
+				$thisLi.addClass("over #4");
+				$thisLi.siblings().removeClass("over");
+				//$("li", $sideM ).not( $thisLi ).removeClass("over");
+
+				contIdx = $thisLi.index();
+				var $contWr = $("#cont .cont-wr");
+				var $contBox = $contWr.eq(contIdx);
+				//var screenGap = ( $(window).height() - ($("#header-wrap").outerHeight() ) ) / 2;
+				//var contBoxGap = $contBox.outerHeight() / 2;
+
+				console.log( "$mFlagState : " + $mFlagState );
+
+				if ( $mFlagState == "P" ) {
+					$("html, body").stop().animate({
+						"scrollTop" : $contBox.offset().top - ($("#header-wrap").outerHeight()) // 한번더 check 필요
+					}, function() {
+						$contBox.addClass("over #5");
+						$contWr.not( $contBox ).removeClass("over");
+						actList = false;
+					});
+				} else if ( $mFlagState == "M" ) {
+					$contBox.addClass("mOver");
+					$contBox.siblings().removeClass("mOver");
+					actList = false;
+				}
+			}
+		});
+	}
+}

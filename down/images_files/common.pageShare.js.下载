@@ -1,0 +1,135 @@
+var pageSNSShare ={
+	init:function(settings){
+		if(typeof(settings)!="undefined"){
+			this.cfg = $.extend({},{},settings);
+		}
+
+	},
+	sendToNaver:function(title,url){
+		//2017-08-30
+		var sUrl = encodeURIComponent(url);
+		var sTitle = encodeURI(title);
+		var shareURL = "http://share.naver.com/web/shareView.nhn?url=" + sUrl + "&title=" + sTitle;
+
+		
+
+		this.openShareWin(shareURL);
+	},
+	sendToBand:function(title,url){
+		//2017-08-30
+		var sUrl = encodeURIComponent(url);
+		var sTitle = encodeURI(title);
+		var shareURL = "http://band.us/plugin/share??url=" + sUrl + "&body=" + sTitle + " " + url  + "&route=" + url;
+
+		this.openShareWin(shareURL);
+	},
+	sendToFacebook:function(title,url,share){
+		if(typeof(share)=="undefined") var share  = {};
+		
+	/*	$("meta[property='og\\:title']").attr("content", '타이틀넣기' );
+	    $("meta[property='og\\:url']").attr("content", '주소넣기' );                    
+	    $("meta[property='og\\:description']").attr("content", '페이지설명넣기' );
+	    $("meta[property='og\\:image']").attr("content", '이미지주소넣기' );*/
+		
+		//2017-08-30
+		var sUrl = encodeURIComponent(url);
+		var sTitle = encodeURI(title);
+		var shareURL = "http://www.facebook.com/sharer/sharer.php?u=" + sUrl + "";
+		
+		this.openShareWin(shareURL);
+	},
+	sendToTwitter:function(title,url,share){
+			if(typeof(share)=="undefined") var share  = {};
+		//2017-08-30
+		var sendTxt = "[" + title +"] " + url;
+		var sUrl = encodeURIComponent(url);
+		var sTitle = encodeURI(title);
+
+		var shareURL = "http://twitter.com/intent/tweet?text=" + sTitle+"&url="+ sUrl ;
+
+		this.openShareWin(shareURL);
+
+
+	},
+		sendToGoogle:function(title,url,share){
+			if(typeof(share)=="undefined") var share  = {};
+		//2017-08-30
+		var sendTxt = "[" + title +"] " + url;
+		var sUrl = encodeURIComponent(url);
+		var sTitle = encodeURI(title);
+
+		var shareURL = "https://plus.google.com/share?url="+ sUrl ;
+
+		this.openShareWin(shareURL);
+
+
+	},
+	initKaKao:function(){
+		/*Kakao.init(this.cfg.kakao_api_key);*/
+		Kakao.init("48addf14d938efb65de3633c32dc0378");
+	},
+	sendToKakaoStory:function(title,url,share){
+		var shareData ={
+			"url":url,
+			"text": title
+		  };
+		if(_isMobile_){
+			Kakao.Story.open(shareData);		//앱으로 공유
+		}else{
+			Kakao.Story.share(shareData);	//웹으로 공유
+		}
+    },
+	
+	sendToKakao:function(title,url,share){
+		try{ this.initKaKao();}catch(e){}
+		
+		
+		var url = location.href;
+		 var url2 = rtnDomainName(url);
+		 var urlStr = "";
+		 if(url2 == "hanjin.icts21.com") urlStr = "http://"+url2;
+		 else urlStr = "https://"+url2;
+		 var title = document.title;
+		Kakao.Link.sendDefault({
+			  objectType: 'feed',
+		      content: {
+		        title: '[한진택배] 공유하기',
+		        description: title,
+		        imageUrl:  urlStr+'/resources/_Img/Common/kakaoSharelogo.png',
+		        link: {
+		        	 mobileWebUrl: url,
+			        webUrl: url
+		        }
+		      }
+		});
+		
+		/*$('head').append('<meta property="og:type" content="website">');
+		$('head').append('<meta property="og:title" content="한진택배 홈페이지">');
+		$('head').append('<meta property="og:description" content="'+title+'">');
+		$('head').append('<meta property="og:image" content="https://www2.hanjin.co.kr/attach/IMAGE/TopDesignMgr/LogoImgUpload/2020/7/QelEmKDAO0XUb82H.PNG">');
+		
+	    
+		Kakao.Link.sendScrap({
+		    requestUrl : location.href
+		});*/
+		
+		
+
+
+    },
+
+	openShareWin:function(url){
+		var wp = window.open(url, 'shareWin', 'width=450,height=600');
+		if ( wp ) {
+			wp.focus();
+		}
+
+	}
+}
+function rtnDomainName(url)
+{
+ url = url.split('//');
+ url = url[1].substr(0,url[1].indexOf('/'));
+
+ return url;
+}

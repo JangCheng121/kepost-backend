@@ -1,0 +1,32 @@
+
+$(document).ready(function(){
+	// 투자정보 년도선택
+	$(".cont-sel").change(function(e) {
+		var sect = $(".cont-sel").val();
+		console.log(sect);
+		$(".year-tbl").hide();
+		$("." + sect).show();
+	});
+
+});
+
+
+/* 고객센터안내 탭기능  */
+$(function(){
+	csCenter.init();
+});
+var csCenter = {
+	init : function(){
+		$csCenter = $(".cuscenter-box");
+		$csBtns = $(".c-tab01 li a", $csCenter);
+		$csCont = $(".cuscenter-cont", $csCenter);
+
+		$csBtns.on("click", function(){
+			var idx = $(this).data("num") -1;
+			$(this).closest("li").addClass("over").siblings().removeClass("over");
+			$csCont.eq(idx).show().siblings().hide();
+			console.log('111');
+			return false;
+		});
+	}
+}

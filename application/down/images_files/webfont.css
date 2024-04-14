@@ -1,0 +1,44 @@
+@charset "utf-8";
+
+/* -------- Titillium Web -------- */
+@import url("https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700&display=swap");
+
+/* -------- Open Sans -------- */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+/* -------- NOTO Sans -------- */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+/* -------- NOTO -------- */
+@font-face {
+	font-family: 'Noto Sans KR';
+	font-style: normal;
+	font-weight: 300;
+	src : url(/resources/_Font/300/NotoSansKR-Light.woff2) format('woff2'),
+		url(/resources/_Font/300/NotoSansKR-Light.woff) format('woff'),
+		url(/resources/_Font/300/NotoSansKR-Light.otf) format('opentype');
+}
+@font-face {
+	font-family: 'Noto Sans KR';
+	font-style: normal;
+	font-weight: 400;
+	src : url(/resources/_Font/400/NotoSansKR-Regular.woff2) format('woff2'),
+		url(/resources/_Font/400/NotoSansKR-Regular.woff) format('woff'),
+		url(/resources/_Font/400/NotoSansKR-Regular.otf) format('opentype');
+}
+@font-face {
+	font-family: 'Noto Sans KR';
+	font-style: normal;
+	font-weight: 500;
+	src : url(/resources/_Font/500/NotoSansKR-Medium.woff2) format('woff2'),
+		url(/resources/_Font/500/NotoSansKR-Medium.woff) format('woff'),
+		url(/resources/_Font/500/NotoSansKR-Medium.otf) format('opentype');
+}
+@font-face {
+	font-family: 'Noto Sans KR';
+	font-style: normal;
+	font-weight: 700;
+	src : url(/resources/_Font/700/NotoSansKR-Bold.woff2) format('woff2'),
+		url(/resources/_Font/700/NotoSansKR-Bold.woff) format('woff'),
+		url(/resources/_Font/700/NotoSansKR-Bold.otf) format('opentype');
+}

@@ -1,0 +1,112 @@
+document.write('<link rel="stylesheet" media="" href="/resources/_Plugin/jquery.TabMenu/jquery.TabMenu.css" />');
+;(function($, window, document, undefined)
+{
+
+    var defaults = {
+    		tabMenuClass : "a-tab01"
+    		, obj_tabMenu : null
+    		, obj_tabItems : null
+    		, obj_tabMenuWrap : "<ul></ul>"
+    		, obj_tabMenuWrapItem : "<li></li>"
+    		, btn_tabBtnDgin : "<button></button>"
+    		, btn_tabBtnText : "<span></span>"
+    		, first_select : ""
+    		, BtnList : []
+        };
+
+    function Plugin( element, options)
+    {
+        this.el = $(element);
+        this.options = $.extend({}, defaults, options);
+        this.content = $( "#" + this.options.target );
+        this.init();
+    }
+
+    Plugin.prototype = {
+
+        init: function() {
+            var TabMenu = this;
+                        
+            if( TabMenu.options.BtnList.length < 0 ){
+            	alert( "등록된 메뉴가 없습니다." );
+            	return false;
+            }
+            
+            TabMenu.drawMenu();
+            
+            if( TabMenu.options.first_select == null || TabMenu.options.first_select == "" ){
+            	TabMenu.options.obj_tabMenu.children( "li" ).first().click();
+            }else{
+            	TabMenu.options.obj_tabMenu.children( "li" ).find( "button[item-code=" + TabMenu.options.first_select + "]" ).click();
+            }
+                                
+        }
+    
+	    , drawMenu : function(){
+	    	var TabMenu = this;
+	    	TabMenu.el.addClass( TabMenu.options.tabMenuClass );
+	    	
+	    	TabMenu.options.obj_tabMenu = $( TabMenu.options.obj_tabMenuWrap );
+	    	
+	    	$.each( TabMenu.options.BtnList, function(k, el) { 
+	    		var li = $( TabMenu.options.obj_tabMenuWrapItem );
+	    		var btn = $( TabMenu.options.btn_tabBtnDgin );
+	    		$( btn ).attr( "item-code", el.code );
+	    		var btn_text = $( TabMenu.options.btn_tabBtnText ).html( el.name );
+	    		
+	    		TabMenu.onEvent( li, el );
+	    		
+	    		TabMenu.options.obj_tabMenu.append( li.append( btn.append( btn_text ) ) );
+	    		
+	    	});
+	    	
+	    	TabMenu.el.append( TabMenu.options.obj_tabMenu );
+	    }
+	    
+	    , onEvent : function( obj, el ){
+	    	var TabMenu = this;
+	    	obj.bind( "click", function(){
+	    		TabMenu.onClear();
+	    		$( obj ).addClass( "over" );
+	    		$( "#" + el.code ).show();
+			});
+	    }
+	    
+	    , onClear : function(){
+	    	var TabMenu = this;
+	    	TabMenu.options.obj_tabMenu.children( "li" ).removeClass( "over" );
+	    	TabMenu.content.children( "div" ).hide();
+	    }
+	    
+	    , onTab : function( code ){
+	    	var TabMenu = this;
+	    	TabMenu.options.obj_tabMenu.children( "li" ).find( "button[item-code=" + code + "]" ).click();
+	    }
+    
+    };
+
+    $.fn.tapMenu = function( params, a )   {
+        var lists  = this,
+            retval = this;
+
+        lists.each(function()
+        {
+        	        	
+            var plugin = $(this).data( "tapMenu" );
+
+            if (!plugin) {
+                $(this).data("tapMenu", new Plugin( this, params));
+                $(this).data("tapMenu-id", new Date().getTime());
+            } else {
+                if (typeof params === 'string' && typeof plugin[params] === 'function' && typeof a === 'undefined' ) {
+                    retval = plugin[params]();
+                }else if (typeof params === 'string' && typeof plugin[params] === 'function' ){
+                	retval = plugin[params]( a );
+                }
+            }
+        });
+
+        return retval || lists;
+    };
+
+})(window.jQuery || window.Zepto, window, document);
